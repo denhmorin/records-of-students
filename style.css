@@ -1,0 +1,72 @@
+footer {
+	background-color: #1a426d;
+    color: #ffffff;
+    padding: 50px 0;
+}
+#body {
+    min-height: 700px;
+    background: url(img/banner.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: top;
+}
+#body-bg {
+	background: #fff;
+	min-height: 500px;
+	padding: 50px 0;
+}
+.student-photo {
+    max-width: 100px;
+}
+.table td {
+    vertical-align: middle !important;
+}
+.page-header {
+    background: transparent !important;
+    padding-top: 30px !important;
+}
+.breadcrumb {
+    background-color: rgba(0, 0, 0, 0.30196078431372547)!important;
+}
+.breadcrumb li a {
+    color: #fff !important;
+}
+.breadcrumb li {
+	color: #ddd !important;
+}
+.navbar-dark .navbar-brand {
+    color: #fff;
+    border: 1px solid 1px solid rgb(0, 100, 206);
+    padding: 4px 10px;
+    border-radius: 4px;
+    box-shadow: 2px 2px 2px 2px 2px 2px rgb(0, 100, 206);
+    transition: 0.3s;
+}
+.navbar-dark .navbar-brand:hover {
+    box-shadow: 1px solid rgb(1, 85, 175);
+    background: rgb(4, 98, 197);
+}
+a.report-box {
+    border-radius: 5px;
+    padding: 30px;
+    background: rgba(0, 123, 255, 0.8117647058823529);
+    display: block;
+    color: #fff;
+    transition: 0.3s;
+}
+a.report-box:hover {
+    text-decoration: none;
+}
+.report-box i {
+    text-align: center;
+    display: block;
+    margin-top: 25px;
+}
+@media only screen and (min-width: 991px) {
+    a.report-box:hover {
+        background: rgba(255, 255, 255, 0.8117647058823529);
+        color: #007bff;
+    }
+}
+
