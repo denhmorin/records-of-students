@@ -165,6 +165,7 @@ $classes = doQuery($conn,$sql);
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-12">
+                            <a class="btn btn-primary mb-4" href="student-edit.php">Dodaj novog učenika</a>
                             <h2 class="text-primary"><?php if(!empty($msg)){echo $msg;} ?></h2>
                             <form name="student-edit-form" id="student-edit-form" method="POST" enctype="multipart/form-data" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]."?student_id=".$id_update_student); ?>" >
                                 <div class="form-group">

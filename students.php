@@ -69,6 +69,7 @@ if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-12">
+                            <a class="btn btn-primary mb-4" href="student-edit.php">Dodaj novog učenika</a>
                             <div class="table-responsive">
                                 <table class="table table-striped table-sm">
                                     <thead>
