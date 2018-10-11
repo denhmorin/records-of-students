@@ -3,17 +3,13 @@ include_once("db-connection.php");
 error_reporting( error_reporting() & ~E_NOTICE);
 /*ini_set('display_errors', 'On');
 error_reporting(E_ALL);*/
-
 if (isset($_GET["student_id"]) AND !empty($_GET["student_id"])){
     $student_id = $_GET["student_id"];
     if(!ctype_digit($student_id)){
        header('Location: 404.php'); 
     }
 }
-
 $id_update_student = $student_id;
-
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST["submit"])){
         function test_input($data) {
@@ -33,7 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $student_email = test_input($_POST["student_email"]);
         $student_grade = test_input($_POST["student_grade"]);
         $student_status = test_input($_POST["student_status"]);
-
         if(empty($student_name)){
             $error_student_name = "Unesite ime.";
         }
@@ -43,8 +38,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if(empty($student_oib)){
             $error_student_oib = "Unesite OIB.";
         }
-
-
         if (!filter_var($student_email, FILTER_VALIDATE_EMAIL)) {
            $error_student_email = "Morate unijeti ispravnu E-mail adresu"; 
         }
@@ -85,42 +78,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 doQuery($conn,$sql);
             } else {
                 $sql = "INSERT INTO students (student_name, student_surname, student_image, student_oib, student_telephone, student_street, city_id, student_email, student_grade, student_status, class_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
                 if($stmt = $conn->prepare($sql)){
-
                     $stmt->bind_param('sssddsdsddd', $student_name, $student_surname, $student_image, $student_oib, $student_telephone, $student_street, $city_id, $student_email, $student_grade, $student_status, $class_id);
-
                     $stmt->execute();
-
                     $stmt->close();
-
                 }
                 $msg = "Uspješno ste dodali novog učenika";
             }
         }
     }
 }
-
 if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
     $student_delete =  $_GET["student_delete"];
         $sql = "DELETE FROM records_of_students.students WHERE students.student_id = " . $student_delete;
         doQuery($conn,$sql);
 }
-
 if(!empty($id_update_student)){
     $sql = "SELECT students.student_id, students.student_image, students.student_name, students.student_surname, students.student_oib, students.student_street, students.student_grade, students.student_status, students.student_email, students.student_telephone FROM students WHERE student_id={$id_update_student}";
             $result = doQuery($conn,$sql);
             $result_student = mysqli_fetch_array($result);
 }
-
 $sql = "SELECT * FROM city";
 $city = doQuery($conn,$sql);
-
 $sql = "SELECT classes.class_id, classes.class_name, schools.school_id, schools.school_name FROM classes LEFT JOIN schools ON classes.school_id=schools.school_id";
 $classes = doQuery($conn,$sql);
-
-
-
 ?>
 <!doctype html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
@@ -250,7 +231,6 @@ $classes = doQuery($conn,$sql);
                                     <input type="reset" class="btn btn-basic" value="Očisti formu">
                                     <?php 
                                     if(!empty($id_update_student)){
-
                                     echo '<a class="btn btn-danger" onclick="return confirm(\'Jeste li sigurni da želite obrisati učenika?\');" href="student-edit.php?student_delete=<?php echo $result_student["student_id"];?>Obriši učenika</a>';
                                     }
                                     ?>

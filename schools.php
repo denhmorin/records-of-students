@@ -1,12 +1,10 @@
 <?php
-include_once("db-connection.php");
+include_once('db-connection.php');
 
-/*$query = "SELECT * FROM schools INNER JOIN city ON schools.city_id=city.city_id";
-$sql new students;
-$sql->select();*/
+$current_file_name = basename($_SERVER['PHP_SELF']);
 
-$sql = "SELECT schools.school_id, schools.school_id, schools.school_name, schools.school_street, schools.school_telephone, schools.school_email, city.city_name FROM schools LEFT JOIN city ON schools.city_id=city.city_id";
-$result = doQuery($conn,$sql);
+$db = new DB('root', '', 'records_of_students');
+$db = $db->query('SELECT schools.school_id, schools.school_id, schools.school_name, schools.school_street, schools.school_telephone, schools.school_email, city.city_name FROM schools LEFT JOIN city ON schools.city_id=city.city_id');
 
 ?>
 
@@ -54,28 +52,29 @@ $result = doQuery($conn,$sql);
                                 <table class="table table-striped table-sm">
                                     <thead>
                                         <tr>
-                                            <th>R.br.</th>
+                                            <th>r.br.</th>
                                             <th>Naziv</th>
                                             <th>Adresa</th>
                                             <th>Telefon</th>
                                             <th>E-mail</th>
-                                            <th>Opcije</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if ($result->num_rows > 0) {
+                                    if (!empty((array) $db)) {
                                         $row_number = 0;
-                                        while($row = $result->fetch_array()) {
+                                        foreach($db as $value) {
                                             $row_number++;
                                     ?>
                                         <tr>
                                             <td><?php echo $row_number; ?>.</td>
-                                            <td><?php echo $row['school_name']; ?></td>
-                                            <td><?php echo $row['school_street'] . ", " . $row['city_name']; ?></td>
-                                            <td><?php echo $row['school_telephone']; ?></td>
-                                            <td><?php echo $row['school_email']; ?></td>
-                                            <td><?php echo '<a href="classes.php?school_id=' . $row["school_id"] . '" class="btn btn-primary btn-block btn-sm">Vidi razrede <i class="fas fa-chevron-right" style="color: #fff;"></i></a></td>';?>
+                                            <td><?php echo $value->school_name; ?></td>
+                                            <td><?php echo $value->school_street . " " . $value->city_name; ?></td>
+                                            <td><?php echo $value->school_telephone; ?></td>
+                                            <td><?php echo $value->school_email; ?></td>
+                                            <td>
+                                                <?php echo "<a  class='btn btn-primary btn-sm btn-block' href='classes.php?school_id={$value->school_id}'>Vidi razrede</a>"; ?>
+                                            </td>
                                         </tr>
                                     <?php
                                         }

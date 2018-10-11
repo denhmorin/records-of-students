@@ -82,7 +82,7 @@ $schools = array();
                                     ?>
                                         <tr> 
                                             <td><?php echo $row_number; ?></td> 
-                                            <td><?php echo $value2['student_name']; ?></td>  
+                                            <td><?php echo $value2['student_name'] . " " . $value2['student_surname']; ?></td>  
                                             <td><?php echo $value2['student_grade']; ?></td>  
                                         </tr>
                                         <?php

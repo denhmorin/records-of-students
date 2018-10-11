@@ -1,23 +1,22 @@
 <?php
 include_once("db-connection.php");
 
+$current_file_name = basename($_SERVER['PHP_SELF']);
+
 if (isset($_GET["school_id"]) AND !empty($_GET["school_id"]) AND isset($_GET["class_id"]) AND !empty($_GET["class_id"])){
     $school_id = $_GET["school_id"];
     $class_id = $_GET["class_id"];
     if(!ctype_digit($school_id) OR !ctype_digit($class_id)){
        header('Location: 404.php'); 
     }else{
-        $sql = "SELECT students.student_id, students.student_image, students.student_name, students.student_surname, students.student_oib, students.student_street, students.student_grade, students.student_status, city.city_name FROM students LEFT JOIN city ON students.city_id=city.city_id WHERE class_id={$class_id}";
-        $result = doQuery($conn,$sql);
-
-        $sql = "SELECT classes.class_name, schools.school_name FROM classes LEFT JOIN schools ON classes.school_id=schools.school_id WHERE class_id = {$school_id}";
-        $result1 = doQuery($conn,$sql);
-        $result_complete = mysqli_fetch_array($result1);
+        $db = new DB('root', '', 'records_of_students');
+        $db = $db->select('SELECT students.student_id, students.student_image, students.student_name, students.student_surname, students.student_oib, students.student_street, students.student_grade, students.student_status, city.city_name, classes.class_name, classes.class_mark, schools.school_name FROM students LEFT JOIN city ON students.city_id=city.city_id LEFT JOIN classes ON students.class_id=classes.class_id  LEFT JOIN schools ON classes.school_id=schools.school_id WHERE students.class_id = ?', array($class_id), array('%d'));
     }
 }
 else{
-    $sql = "SELECT students.student_id, students.student_image, students.student_name, students.student_surname, students.student_oib, students.student_street, students.student_grade, students.student_status, city.city_name FROM students LEFT JOIN city ON students.city_id=city.city_id";
-    $result = doQuery($conn,$sql);
+    $class_id = "";
+    $db = new DB('root', '', 'records_of_students');
+    $db = $db->query('SELECT students.student_id, students.student_image, students.student_name, students.student_surname, students.student_oib, students.student_street, students.student_grade, students.student_status, city.city_name FROM students LEFT JOIN city ON students.city_id=city.city_id');
 }
 
 if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
@@ -25,8 +24,8 @@ if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
         $sql = "DELETE FROM records_of_students.students WHERE students.student_id = " . $student_delete;
         doQuery($conn,$sql);
 }
-
 ?>
+
 <!doctype html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
@@ -36,7 +35,7 @@ if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Učenici</title>
+        <title>Razredi</title>
         <meta name="description" content="App for student grades">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="third-party/bootstrap-4.1.3/css/bootstrap.min.css">
@@ -53,14 +52,23 @@ if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
                             <ul class="breadcrumb bg-light">
                                 <li class="breadcrumb-item"><a href="index.php">Naslovnica</a></li>
                                 <li class="breadcrumb-item"><a href="schools.php">Škole</a></li>
-                                <li class="breadcrumb-item"><a href="classes.php">Razredi</a></li>
-                                <li class="breadcrumb-item active">Učenici<?php if (isset($result_complete) AND !empty($result_complete)){ echo ": " .$result_complete['school_name']. " - razred(".$result_complete['class_name'].")"; } ?></li>
+                                <li class="breadcrumb-item active">Učenici
+                                <?php 
+                                    if (!empty((array)$db) AND !empty($class_id)) { echo ": " .$db[0]->class_name . "" . $db[0]->class_mark; } 
+                                    if (!empty((array)$db) AND !empty($school_id)) { echo " / " .$db[0]->school_name; }
+                                ?>
+                                </li>
                             </ul>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <h1>Učenici<?php if (isset($result_complete) AND !empty($result_complete)){ echo ": " .$result_complete['school_name']. " - razred(".$result_complete['class_name'].")"; } ?></h1>
+                            <h1>Učenici
+                            <?php 
+                                if (!empty((array) $db) AND !empty($class_id)) { echo ": " .$db[0]->class_name . "" . $db[0]->class_mark; } 
+                                if (!empty((array) $db) AND !empty($school_id)) { echo " / " .$db[0]->school_name; }
+                            ?>
+                            </h1>
                         </div>
                     </div>
                 </div>
@@ -69,7 +77,6 @@ if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-12">
-                            <a class="btn btn-primary mb-4" href="student-edit.php">Dodaj novog učenika</a>
                             <div class="table-responsive">
                                 <table class="table table-striped table-sm">
                                     <thead>
@@ -87,23 +94,32 @@ if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if ($result->num_rows > 0) {
+                                    if (!empty((array) $db)) {
                                         $row_number = 0;
-                                        while($row = $result->fetch_array()) {
+                                        foreach($db as $value) {
                                             $row_number++;
                                     ?>
                                         <tr>
                                             <td><?php echo $row_number; ?>.</td>
-                                            <td><img src="<?php if(!empty($row['student_image'])){echo $row['student_image'];}else{echo "img/user.png";} ?>" class="student-photo" /></td>
-                                            <td><?php echo $row['student_name']; ?></td>
-                                            <td><?php echo $row['student_surname']; ?></td>
-                                            <td><?php echo $row['student_oib']; ?></td>
-                                            <td><?php echo $row['student_street'] . ", " . $row['city_name']; ?></td>
-                                            <td><?php echo $row['student_grade']; ?></td>
-                                            <td><?php if($row['student_status'] == 1){echo "Aktivan";}else{echo "Neaktivan";} ?></td>
+                                            <td><img src="<?php if(!empty($value->student_image)){echo $value->student_image; }else{ echo "img/user.png"; } ?>" class="student-photo" /></td>
+                                            <td><?php echo $value->student_name; ?></td>
+                                            <td><?php echo $value->student_surname; ?></td>
+                                            <td><?php echo $value->student_oib; ?></td>
+                                            <td><?php echo $value->student_street . ", " . $value->city_name; ?></td>
+                                            <td><?php echo $value->student_grade; ?></td>
                                             <td>
-                                                <?php echo "<a  class='btn btn-primary btn-sm btn-block' href='student-edit.php?student_id={$row["student_id"]}'>Uredi</a>"; ?>
-                                                <a class="btn btn-danger btn-sm btn-block" onclick="return confirm('Jeste li sigurni da želite obrisati učenika?');" href="students.php?student_delete=<?php echo $row['student_id'];?>">Obriši učenika</a>
+                                            <?php 
+                                                if ($value->student_status == 1){
+                                                    echo "Aktivan";
+                                                }elseif($value->student_status == 0){
+                                                    echo "Neaktivan";
+                                                }
+                                            ?>
+                                                
+                                            </td>
+                                            <td>
+                                                <?php echo "<a  class='btn btn-primary btn-sm btn-block' href='student-edit.php?student_id={$value->student_id}'>Uredi</a>"; ?>
+                                                <a class="btn btn-danger btn-sm btn-block" onclick="return confirm('Jeste li sigurni da želite obrisati učenika?');" href="students.php?student_delete=<?php echo $value->student_id;?>">Obriši učenika</a>
                                             </td>
                                         </tr>
                                     <?php
