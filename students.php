@@ -35,7 +35,7 @@ if(isset($_GET["student_delete"]) AND !empty($_GET["student_delete"])){
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Razredi</title>
+        <title>Učenici</title>
         <meta name="description" content="App for student grades">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="third-party/bootstrap-4.1.3/css/bootstrap.min.css">

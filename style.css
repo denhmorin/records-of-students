@@ -63,10 +63,12 @@ a.report-box:hover {
     display: block;
     margin-top: 25px;
 }
+
 @media only screen and (min-width: 991px) {
     a.report-box:hover {
         background: rgba(255, 255, 255, 0.8117647058823529);
         color: #007bff;
     }
 }
+
 

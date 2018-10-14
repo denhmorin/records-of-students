@@ -1,24 +1,24 @@
 <?php
+error_reporting(0);
 include_once("db-connection.php");
 
-$sql = "SELECT * FROM schools";
-$result = doQuery($conn,$sql);
+$db = new DB('root', '', 'records_of_students');
+
+$db1 = $db->query('SELECT schools.school_id, schools.school_name FROM schools');
 $school_with_students = array();
 $schools = array();
- while($row = $result->fetch_array()) {
-    $sql = "SELECT *, count(students.student_id) AS students_count, ROUND(AVG(students.student_grade),2) as average_grade FROM students INNER JOIN classes ON students.class_id = classes.class_id  WHERE classes.school_id=". $row['school_id']; 
-      $schools = [];
-      $schools["school"] = $row['school_name'];
-      $student_result = doQuery($conn,$sql);
-      $students = array();
-      while($row2 = $student_result->fetch_array()) {
-           array_push($students, $row2);
-      }
-      $schools["students"] = $students;
-      array_push($school_with_students,$schools);
- } 
-?>
+foreach($db1 as $value) {
+    $db2 = $db->select('SELECT count(students.student_id) AS students_count, ROUND(AVG(students.student_grade),2) as average_grade FROM students INNER JOIN classes ON students.class_id = classes.class_id  WHERE classes.school_id = ?', array($value->school_id), array('%d'));
+    $schools["school"] = $value->school_name;
 
+    foreach($db2 as $value2) {
+        $schools["students_count"] = $value2->students_count;
+        $schools["average_grade"] = $value2->average_grade;
+    }
+
+    array_push($school_with_students,$schools);
+} 
+?>
 <!doctype html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
@@ -28,7 +28,7 @@ $schools = array();
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Škole</title>
+        <title>Škole - Broj učenika po školi i prosječna ocjena po školi.</title>
         <meta name="description" content="App for student grades">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="third-party/bootstrap-4.1.3/css/bootstrap.min.css">
@@ -71,24 +71,36 @@ $schools = array();
                                     </thead>
                                     <tbody>
                                     <?php 
-                                    if ($school_with_students != null) { 
-                                        foreach ($school_with_students as $key => $value) { 
-                                            if($value['students'] != null){
-                                                $row_number = 0;
-                                                foreach ($value['students'] as $key2 => $value2) { 
-                                                $row_number++;
+                                    $row_number = 0;
+                                    foreach ($school_with_students as $value) { 
+                                        if(!empty($school_with_students)){
+                                            $row_number++;
                                     ?>
-                                                <tr> 
-                                                    <td><?php echo $row_number; ?></td> 
-                                                    <td><?php echo $value['school']; ?></td>  
-                                                    <td><?php echo $value2['students_count']; ?></td>  
-                                                    <td><?php echo $value2['average_grade']; ?></td>  
-                                                </tr>
+                                            <tr> 
+                                                <td><?php echo $row_number; ?></td> 
+                                                <td><?php echo $value['school']; ?></td>  
+                                                <td>
+                                                <?php 
+                                                    if(!empty($value['students_count'])){
+                                                        echo $value['students_count'];
+                                                    }else{
+                                                        echo "-";
+                                                    }
+                                                ?>
+                                                </td>  
+                                                <td>
+                                                <?php 
+                                                    if(!empty($value['average_grade'])){
+                                                        echo $value['average_grade'];
+                                                    }else{
+                                                        echo "-";
+                                                    }
+                                                ?>
+                                                </td>
+                                            </tr>
                                     <?php
-                                                }
-                                            }else{
-                                                echo '<tr"><td class="text-danger">Nema rezultata</td></tr>';
-                                            }
+                                        }else{
+                                            echo "<tr><td>Nema rezultata</td></tr>";
                                         }
                                     }
                                     ?>
